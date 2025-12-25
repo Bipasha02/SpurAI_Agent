@@ -7,7 +7,7 @@ const config = {
 
   kit: {
     adapter: adapter(),
-    ssr: false, // 👈 disables server-side rendering
+    ssr: false, 
     prerender: {
       handleHttpError: 'warn'
     }
