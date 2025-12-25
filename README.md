@@ -1,23 +1,46 @@
-# Spur – AI Live Chat Agent (Take-Home Assignment)
+# Spur – AI Live Chat Agent 
 
-A mini customer support chat widget powered by an AI agent, built as a founding full-stack engineer candidate for Spur.
-
-> ✅ **Live Demo**: [https://spur-ai-agent.vercel.app](https://spur-ai-agent.vercel.app)  
-> 📦 **GitHub**: [your-github-username/spur-ai-agent](https://github.com/your-github-username/spur-ai-agent)
+An end-to-end AI customer support agent with persistent chat, FAQ suggestions, and LLM integration.
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
-- **Frontend**: SvelteKit + Tailwind CSS
+- **Frontend**: SvelteKit + Vite + Tailwind CSS
 - **Backend**: Node.js + TypeScript + Express
-- **Database**: SQLite (via `better-sqlite3`)
-- **LLM**: OpenAI (`gpt-4o-mini`) — **mocked for demo**
-- **Deployment**: Vercel (frontend), Render (backend)
+- **Database**: SQLite (`better-sqlite3`)
+- **AI**: OpenAI integration (mocked for reliable demo)
+- **Deployment**: Vercel (frontend), Render (backend-ready)
 
 ---
 
-## 🚀 Local Setup
+## Features
+
+- Real-time chat interface with message history
+- Clickable FAQ suggestions ("What’s your return policy?")
+- Session persistence via SQLite
+- Clean, mobile-responsive UI
+- Full error handling (network, LLM, input validation)
+
+---
+
+## AI Integration
+
+> **Mock Mode Enabled**  
+> To avoid external dependencies during evaluation, AI responses are **simulated** using rule-based logic.
+
+The real OpenAI integration is fully implemented and can be enabled by:
+1. Setting `USE_MOCK_AI = false` in `backend/src/services/ai.service.ts`
+2. Adding a valid `OPENAI_API_KEY` in `backend/.env`
+
+All LLM calls are structured with:
+- System prompt (store policies)
+- Conversation history (last 6 messages)
+- Timeout & error handling
+
+---
+
+## Local Setup
 
 ### Prerequisites
 - Node.js v18+
@@ -25,11 +48,13 @@ A mini customer support chat widget powered by an AI agent, built as a founding 
 
 ### 1. Clone & Install
 ```bash
-git clone https://github.com/your-github-username/spur-ai-agent.git
-cd spur-ai-agent
+# Install dependencies
+cd backend && npm install
+cd ../frontend && npm install
 
-# Install frontend
-cd frontend && npm install && cd ..
+# Set up DB
+cd ../backend && npm run db:setup
 
-# Install backend
-cd backend && npm install && cd ..
+# Run
+cd backend && npm run dev          # http://localhost:3001
+cd frontend && npm run dev         # http://localhost:5173
