@@ -19,18 +19,40 @@
     messages = [...messages, { sender: 'user', text: userMsg }];
 
     try {
-      const res = await fetch('http://localhost:3001/api/chat/message', {
+      // AbortController for timeout (Render free tier can be slow)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+      const res = await fetch('https://spurai-agent.onrender.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMsg, sessionId })
+        body: JSON.stringify({ message: userMsg, sessionId }),
+        signal: controller.signal
       });
-      const data = await res.json();
-      if (res.ok) {
-        sessionId = data.sessionId;
-        messages = [...messages, { sender: 'ai', text: data.reply }];
+
+      clearTimeout(timeoutId);
+
+      // Ensure response is OK before parsing
+      if (!res.ok) {
+        throw new Error(`Backend error: ${res.status}`);
       }
+
+      // Safely parse JSON
+      const data = await res.json();
+
+      // Validate expected fields
+      if (typeof data?.reply !== 'string' || typeof data?.sessionId !== 'string') {
+        throw new Error('Invalid response format');
+      }
+
+      sessionId = data.sessionId;
+      messages = [...messages, { sender: 'ai', text: data.reply }];
     } catch (e) {
-      messages = [...messages, { sender: 'ai', text: 'Sorry, our agent is having trouble right now. Please try again.' }];
+      console.error('Chat fetch error:', e);
+      messages = [...messages, { 
+        sender: 'ai', 
+        text: 'Sorry, our agent is having trouble right now. Please try again.' 
+      }];
     } finally {
       isLoading = false;
     }
