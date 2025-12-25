@@ -1,3 +1,5 @@
+// backend/src/services/ai.service.ts
+
 import { OpenAI } from 'openai';
 
 const USE_MOCK_AI = true;
@@ -23,24 +25,48 @@ Use only the information above unless asked something general.
 `.trim();
 
 function getMockReply(userMessage: string): string {
-  const msg = userMessage.toLowerCase();
+  const msg = userMessage.trim().toLowerCase();
 
-  if (msg.includes('ship') || msg.includes('deliver') || msg.includes('usa') || msg.includes('canada') || msg.includes('international')) {
+  // ✅ SHIPPING — checked FIRST to avoid being overridden
+  if (
+    msg.includes('ship') ||
+    msg.includes('shipp') || // covers typo like "shipping" -> "shipp"
+    msg.includes('deliver') ||
+    msg.includes('delivery') ||
+    msg.includes('worldwide') ||
+    msg.includes('free shipping') ||
+    // Handle "Do you ship to the USA?" correctly:
+    (msg.includes('usa') && (msg.includes('ship') || msg.includes('deliver') || msg.includes('to the usa'))) ||
+    (msg.includes('canada') && (msg.includes('ship') || msg.includes('deliver'))) ||
+    msg.includes('international')
+  ) {
     return "Yes! We offer free worldwide shipping. Delivery takes 5–10 business days.";
   }
 
-  if (msg.includes('return') || msg.includes('refund') || msg.includes('exchange')) {
+  // ✅ RETURNS / REFUNDS
+  if (msg.includes('return') || msg.includes('refund') || msg.includes('exchange') || msg.includes('policy')) {
     return "We have a 30-day return policy at SpurStore. Just make sure items are unworn with original tags attached.";
   }
 
-  if (msg.includes('support') || msg.includes('contact') || msg.includes('email') || msg.includes('hours') || msg.includes('time')) {
+  // ✅ SUPPORT HOURS / CONTACT
+  if (
+    msg.includes('support') ||
+    msg.includes('contact') ||
+    msg.includes('email') ||
+    msg.includes('hours') ||
+    msg.includes('time') ||
+    msg.includes('available') ||
+    msg.includes('when') && (msg.includes('open') || msg.includes('support'))
+  ) {
     return "Our support team is available Mon–Fri, 9 AM – 6 PM IST. You can reach us at support@SpurStore.com.";
   }
 
+  // ✅ GREETINGS — checked LAST to prevent false matches
   if (msg.includes('hi') || msg.includes('hello') || msg.includes('hey')) {
     return "Hello! 👋 I'm the support agent for SpurStore. How can I help you today?";
   }
 
+  // Friendly fallback
   return "Thanks for your message! I'm here to help with questions about shipping, returns, or support hours. Just ask!";
 }
 
